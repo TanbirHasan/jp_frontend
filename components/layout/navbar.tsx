@@ -6,6 +6,7 @@ import { useState } from "react";
 import { authApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
+import { NotificationPanel } from "@/components/notifications/notification-panel";
 import type { User } from "@/lib/types";
 
 type NavItem = { href: string; label: string };
@@ -90,6 +91,7 @@ export function Navbar() {
         {/* Auth actions */}
         {isAuthenticated && user ? (
           <div className="flex items-center gap-3">
+            <NotificationPanel />
             <div className="hidden sm:flex items-center gap-2.5">
               <div className="flex h-7 w-7 items-center justify-center bg-slate-900 text-white text-xs font-bold uppercase">
                 {user.name.charAt(0)}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Toaster } from "sonner";
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { WebSocketProvider } from "@/components/providers/websocket-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { PageLoader } from "@/components/ui/page-loader";
 import "./globals.css";
@@ -19,8 +21,10 @@ export default function RootLayout({
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full">
         <PageLoader />
+        <Toaster position="top-right" richColors />
         <Suspense>
           <AuthProvider>
+            <WebSocketProvider />
             <Navbar />
             {children}
           </AuthProvider>
