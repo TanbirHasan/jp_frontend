@@ -41,26 +41,26 @@ export function NotificationPanel() {
       <button
         type="button"
         onClick={handleToggle}
-        className="relative flex h-9 w-9 items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+        className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
         aria-label="Notifications"
       >
-        <Bell className="h-5 w-5" />
+        <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center bg-emerald-600 text-white text-[10px] font-bold rounded-full leading-none">
+          <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold leading-none text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-slate-200 shadow-lg z-50">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <span className="text-sm font-semibold text-slate-900">Notifications</span>
+        <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <span className="text-sm font-bold text-slate-900">Notifications</span>
             {notifications.length > 0 && (
               <button
                 type="button"
                 onClick={clearAll}
-                className="text-xs text-slate-400 hover:text-slate-700 transition-colors"
+                className="rounded-md px-2 py-1 text-xs font-medium text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
               >
                 Clear all
               </button>
@@ -69,8 +69,9 @@ export function NotificationPanel() {
 
           <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
             {notifications.length === 0 ? (
-              <div className="px-4 py-10 text-center text-sm text-slate-400">
-                No notifications yet
+              <div className="flex flex-col items-center px-4 py-10 text-center">
+                <Bell className="h-8 w-8 text-slate-200" />
+                <p className="mt-3 text-sm text-slate-400">No notifications yet</p>
               </div>
             ) : (
               notifications.map((n) => (
@@ -78,10 +79,16 @@ export function NotificationPanel() {
                   key={n.id}
                   className={cn(
                     "px-4 py-3 transition-colors",
-                    !n.isRead && "bg-emerald-50"
+                    !n.isRead ? "bg-emerald-50/60" : "hover:bg-slate-50",
                   )}
                 >
-                  <p className="text-sm text-slate-700 leading-snug">{n.message}</p>
+                  {!n.isRead && (
+                    <div className="mb-1 flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <span className="text-xs font-semibold text-emerald-600">New</span>
+                    </div>
+                  )}
+                  <p className="text-sm leading-snug text-slate-700">{n.message}</p>
                   <p className="mt-1 text-xs text-slate-400">{formatTime(n.timestamp)}</p>
                 </div>
               ))

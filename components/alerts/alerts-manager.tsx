@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Bell, X, Search, MapPin, Briefcase } from "lucide-react";
 import { alertsApi } from "@/lib/api";
 import type { AlertPayload, JobAlert, JobType } from "@/lib/types";
 
@@ -32,22 +33,30 @@ export function AlertsManager({ prefill, title, description }: AlertsManagerProp
   const [jobType, setJobType] = useState<JobType | "">(prefill?.job_type ?? "");
   const [location, setLocation] = useState(prefill?.location ?? "");
   const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    alertsApi.list().then(setAlerts).catch(() => setAlerts([])).finally(() => setIsLoading(false));
+    alertsApi
+      .list()
+      .then(setAlerts)
+      .catch(() => setAlerts([]))
+      .finally(() => setIsLoading(false));
   }, []);
 
-  const hasAnyFilter = useMemo(() => {
-    return Boolean(keywords.trim() || jobType || location.trim());
-  }, [keywords, jobType, location]);
+  const hasAnyFilter = useMemo(
+    () => Boolean(keywords.trim() || jobType || location.trim()),
+    [keywords, jobType, location],
+  );
 
   async function createAlert() {
     setMessage("");
+    setIsError(false);
     if (!hasAnyFilter) {
       setMessage("Please set at least one filter before saving.");
+      setIsError(true);
       return;
     }
 
@@ -60,9 +69,11 @@ export function AlertsManager({ prefill, title, description }: AlertsManagerProp
     try {
       const newAlert = await alertsApi.create(payload);
       setAlerts((current) => [newAlert, ...current]);
-      setMessage("Alert saved.");
+      setMessage("Alert saved successfully.");
+      setIsError(false);
     } catch {
       setMessage("Unable to save alert. Please try again.");
+      setIsError(true);
     } finally {
       setIsSaving(false);
     }
@@ -76,6 +87,7 @@ export function AlertsManager({ prefill, title, description }: AlertsManagerProp
       setAlerts((current) => current.filter((alert) => String(alert.id) !== id));
     } catch {
       setMessage("Unable to delete alert. Please try again.");
+      setIsError(true);
     } finally {
       setDeletingId(null);
     }
@@ -83,91 +95,132 @@ export function AlertsManager({ prefill, title, description }: AlertsManagerProp
 
   return (
     <section className="space-y-4">
-      <div className="border border-[#dfe5dc] bg-white p-5">
-        <h2 className="text-lg font-semibold text-slate-900">{title ?? "Create Alert"}</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          {description ?? "Get emailed when new jobs match your filters."}
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <input
-            value={keywords}
-            onChange={(event) => setKeywords(event.target.value)}
-            placeholder="Keywords (e.g. backend, react)"
-            className="h-10 border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus:border-emerald-400 focus:bg-white"
-          />
-          <select
-            value={jobType}
-            onChange={(event) => setJobType(event.target.value as JobType | "")}
-            className="h-10 border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition-colors focus:border-emerald-400 focus:bg-white"
-          >
-            <option value="">Any Job Type</option>
-            {jobTypeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <input
-            value={location}
-            onChange={(event) => setLocation(event.target.value)}
-            placeholder="Location (e.g. Dhaka, Remote)"
-            className="h-10 border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus:border-emerald-400 focus:bg-white"
-          />
+      {/* Create Alert Card */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+            <Bell className="h-5 w-5 text-emerald-600" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-slate-900">{title ?? "Create Alert"}</h2>
+            <p className="mt-0.5 text-sm text-slate-500">
+              {description ?? "Get emailed when new jobs match your filters."}
+            </p>
+          </div>
         </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={keywords}
+              onChange={(e) => setKeywords(e.target.value)}
+              placeholder="Keywords (e.g. backend, react)"
+              className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-4 text-sm text-slate-900 shadow-sm outline-none placeholder:text-slate-400 transition-all hover:border-slate-300 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+            />
+          </div>
+
+          <div className="relative">
+            <Briefcase className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <select
+              value={jobType}
+              onChange={(e) => setJobType(e.target.value as JobType | "")}
+              className="h-11 w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-4 text-sm text-slate-700 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+            >
+              <option value="">Any Job Type</option>
+              {jobTypeOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative">
+            <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Location (e.g. Dhaka, Remote)"
+              className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-4 text-sm text-slate-900 shadow-sm outline-none placeholder:text-slate-400 transition-all hover:border-slate-300 focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+            />
+          </div>
+        </div>
+
         <div className="mt-4 flex items-center gap-3">
           <button
             type="button"
             onClick={createAlert}
             disabled={isSaving}
-            className="h-10 bg-emerald-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 rounded-lg bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSaving ? "Saving..." : "Save Alert"}
+            {isSaving ? "Saving…" : "Save Alert"}
           </button>
-          {message ? <p className="text-sm text-slate-500">{message}</p> : null}
+          {message ? (
+            <p className={`text-sm font-medium ${isError ? "text-red-500" : "text-emerald-600"}`}>
+              {message}
+            </p>
+          ) : null}
         </div>
       </div>
 
-      <div className="border border-[#dfe5dc] bg-white p-5">
-        <h3 className="text-base font-semibold text-slate-900">My Alerts</h3>
+      {/* My Alerts Card */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 className="text-sm font-bold text-slate-900">My Alerts</h3>
         {isLoading ? (
-          <p className="mt-3 text-sm text-slate-500">Loading alerts...</p>
+          <div className="mt-4 space-y-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="skeleton h-14 rounded-xl" />
+            ))}
+          </div>
         ) : alerts.length ? (
-          <div className="mt-3 space-y-3">
+          <div className="mt-4 space-y-2.5">
             {alerts.map((alert) => {
-              const chips = [alert.keywords, formatJobType(alert.job_type), alert.location].filter(Boolean);
+              const chips = [
+                alert.keywords,
+                formatJobType(alert.job_type),
+                alert.location,
+              ].filter(Boolean);
               return (
                 <article
                   key={alert.id}
-                  className="flex flex-wrap items-center justify-between gap-3 border border-slate-200 bg-slate-50 p-3"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 transition-colors hover:border-slate-200 hover:bg-white"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     {chips.length ? (
                       chips.map((chip) => (
                         <span
                           key={`${alert.id}-${chip}`}
-                          className="bg-white px-2.5 py-1 text-xs font-semibold text-slate-700"
+                          className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100"
                         >
                           {chip}
                         </span>
                       ))
                     ) : (
-                      <span className="text-sm text-slate-500">No filters</span>
+                      <span className="text-sm text-slate-400">No filters</span>
                     )}
                   </div>
                   <button
                     type="button"
                     onClick={() => deleteAlert(String(alert.id))}
                     disabled={deletingId === String(alert.id)}
-                    className="h-8 border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    aria-label="Delete alert"
                   >
-                    {deletingId === String(alert.id) ? "Deleting..." : "Delete"}
+                    <X className="h-4 w-4" />
                   </button>
                 </article>
               );
             })}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-slate-500">You have no saved alerts yet.</p>
+          <div className="mt-6 flex flex-col items-center py-6 text-center">
+            <Bell className="h-8 w-8 text-slate-200" />
+            <p className="mt-3 text-sm font-medium text-slate-500">No saved alerts yet</p>
+            <p className="mt-1 text-xs text-slate-400">
+              Create an alert above to get notified of new matching jobs.
+            </p>
+          </div>
         )}
       </div>
     </section>

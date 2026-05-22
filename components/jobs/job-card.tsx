@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MapPin, DollarSign, ArrowRight, Bell } from "lucide-react";
 import type { Job } from "@/lib/types";
 
 function formatSalary(job: Job) {
@@ -10,84 +11,94 @@ function formatSalary(job: Job) {
 }
 
 const typeStyles: Record<string, string> = {
-  full_time: "bg-blue-50 text-blue-700 border border-blue-100",
-  part_time: "bg-violet-50 text-violet-700 border border-violet-100",
-  contract: "bg-amber-50 text-amber-700 border border-amber-100",
-  remote: "bg-emerald-50 text-emerald-700 border border-emerald-100",
+  full_time: "bg-blue-50 text-blue-700 ring-1 ring-blue-100",
+  part_time: "bg-violet-50 text-violet-700 ring-1 ring-violet-100",
+  contract: "bg-amber-50 text-amber-700 ring-1 ring-amber-100",
+  remote: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100",
 };
 
-const companyColors = [
-  "bg-slate-800",
-  "bg-emerald-700",
-  "bg-blue-700",
-  "bg-violet-700",
-  "bg-amber-700",
-  "bg-rose-700",
+const companyGradients = [
+  "from-slate-700 to-slate-900",
+  "from-emerald-600 to-emerald-800",
+  "from-blue-600 to-blue-800",
+  "from-violet-600 to-violet-800",
+  "from-amber-600 to-amber-800",
+  "from-rose-600 to-rose-800",
 ];
 
-function companyColor(name: string) {
-  const code = name.charCodeAt(0) % companyColors.length;
-  return companyColors[code];
+function companyGradient(name: string) {
+  return companyGradients[name.charCodeAt(0) % companyGradients.length];
 }
 
 export function JobCard({ job }: { job: Job }) {
   const company = job.company_name ?? job.company?.name ?? "Company";
   const salary = formatSalary(job);
-  const badgeClass = typeStyles[job.job_type] ?? "bg-slate-100 text-slate-600 border border-slate-200";
+  const badgeClass =
+    typeStyles[job.job_type] ?? "bg-slate-100 text-slate-600 ring-1 ring-slate-200";
 
   return (
-    <article className="group bg-white border border-slate-200 p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+    <article className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg">
+      {/* Top shimmer on hover */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-transparent via-emerald-400 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
       <div className="flex items-start gap-4">
-        {/* Company initial */}
+        {/* Company avatar */}
         <div
-          className={`shrink-0 flex h-11 w-11 items-center justify-center text-sm font-bold text-white ${companyColor(company)}`}
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-linear-to-br ${companyGradient(company)} text-sm font-bold text-white shadow-sm transition-transform duration-300 group-hover:scale-105`}
         >
           {company.charAt(0).toUpperCase()}
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <Link
               href={`/jobs/${job.id}`}
-              className="font-semibold text-slate-900 leading-snug hover:text-emerald-700 transition-colors line-clamp-1"
+              className="line-clamp-1 font-semibold leading-snug text-slate-900 transition-colors hover:text-emerald-700"
             >
               {job.title}
             </Link>
-            <span className={`shrink-0 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${badgeClass}`}>
+            <span
+              className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass}`}
+            >
               {job.job_type.replace("_", " ")}
             </span>
           </div>
-          <p className="mt-1 text-sm text-slate-500">
-            {company} · {job.location}
-          </p>
+          <div className="mt-1 flex items-center gap-1 text-sm text-slate-500">
+            <span className="font-medium text-slate-600">{company}</span>
+            <span className="text-slate-300">·</span>
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+            <span>{job.location}</span>
+          </div>
         </div>
       </div>
 
-      <p className="mt-4 text-sm leading-relaxed text-slate-600 line-clamp-2">
+      <p className="mt-4 line-clamp-2 text-sm leading-relaxed text-slate-500">
         {job.description}
       </p>
 
       <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
         {salary ? (
-          <span className="text-sm font-semibold text-slate-800">{salary}</span>
+          <div className="flex items-center gap-1 text-sm font-semibold text-slate-800">
+            <DollarSign className="h-4 w-4 text-emerald-500" />
+            {salary}
+          </div>
         ) : (
           <span className="text-sm text-slate-400">Salary not listed</span>
         )}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Link
             href={`/alerts?keywords=${encodeURIComponent(job.title)}&job_type=${job.job_type}&location=${encodeURIComponent(job.location)}`}
-            className="text-xs font-semibold text-slate-500 transition-colors hover:text-slate-700"
+            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600"
           >
-            Get alerts like this
+            <Bell className="h-3.5 w-3.5" />
+            Alert
           </Link>
           <Link
             href={`/jobs/${job.id}`}
-            className="flex items-center gap-1 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-sm"
           >
-            View details
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+            View
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>
