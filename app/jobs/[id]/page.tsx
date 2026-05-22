@@ -105,8 +105,25 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           <div className="mt-4 space-y-3 lg:mt-0 lg:w-60 lg:shrink-0">
             <div className="bg-white border border-slate-200 p-5 shadow-sm">
               <p className="mb-4 text-sm font-semibold text-slate-900">Apply for this role</p>
-              <ApplyButton jobId={String(job.id)} />
+              <ApplyButton
+                jobId={String(job.id)}
+                alertPrefill={{
+                  keywords: job.title,
+                  job_type: job.job_type,
+                  location: job.location,
+                }}
+              />
             </div>
+
+            <Link
+              href={`/alerts?keywords=${encodeURIComponent(job.title)}&job_type=${job.job_type}&location=${encodeURIComponent(job.location)}`}
+              className="flex items-center justify-between border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:shadow-sm transition-all"
+            >
+              Get alerts for jobs like this
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
 
             {job.company_id ? (
               <Link

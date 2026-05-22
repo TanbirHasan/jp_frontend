@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { AlertsManager } from "@/components/alerts/alerts-manager";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { FormError } from "@/components/forms/form-error";
 import { FormInput } from "@/components/forms/form-input";
@@ -39,22 +40,30 @@ function ProfileContent({ user }: { user: User }) {
       title="Profile"
       description="Keep your personal account details up to date."
     >
-      <div className="max-w-xl border border-[#dfe5dc] bg-white p-6 shadow-[0_20px_60px_rgba(49,60,43,0.08)]">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
-            <FormInput control={form.control} name="name" label="Name" />
-            <FormInput
-              control={form.control}
-              name="email"
-              label="Email"
-              type="email"
-            />
-            <FormError message={form.formState.errors.root?.message} />
-            <Button disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Saving..." : "Save profile"}
-            </Button>
-          </form>
-        </Form>
+      <div className="space-y-6">
+        <div className="max-w-xl border border-[#dfe5dc] bg-white p-6 shadow-[0_20px_60px_rgba(49,60,43,0.08)]">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
+              <FormInput control={form.control} name="name" label="Name" />
+              <FormInput
+                control={form.control}
+                name="email"
+                label="Email"
+                type="email"
+              />
+              <FormError message={form.formState.errors.root?.message} />
+              <Button disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Saving..." : "Save profile"}
+              </Button>
+            </form>
+          </Form>
+        </div>
+        {user.role === "job_seeker" ? (
+          <AlertsManager
+            title="My Job Alerts"
+            description="Manage your saved filters and receive matching jobs by email."
+          />
+        ) : null}
       </div>
     </AppShell>
   );

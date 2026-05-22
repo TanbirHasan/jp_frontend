@@ -3,39 +3,11 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { NotificationPanel } from "@/components/notifications/notification-panel";
 import { authApi } from "@/lib/api";
+import { navByRole, publicNavItems } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
-import { NotificationPanel } from "@/components/notifications/notification-panel";
-import type { User } from "@/lib/types";
-
-type NavItem = { href: string; label: string };
-
-const publicNavItems: NavItem[] = [
-  { href: "/jobs", label: "Browse Jobs" },
-];
-
-const navByRole: Record<User["role"], NavItem[]> = {
-  job_seeker: [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/jobs", label: "Jobs" },
-    { href: "/applications", label: "Applications" },
-    { href: "/profile", label: "Profile" },
-  ],
-  employer: [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/my-jobs", label: "My Jobs" },
-    { href: "/jobs/new", label: "Post Job" },
-    { href: "/company", label: "Company" },
-    { href: "/profile", label: "Profile" },
-  ],
-  admin: [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/admin/users", label: "Users" },
-    { href: "/admin/jobs", label: "Jobs" },
-    { href: "/profile", label: "Profile" },
-  ],
-};
 
 export function Navbar() {
   const pathname = usePathname();
@@ -57,21 +29,16 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
-
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center bg-emerald-600 text-white text-sm font-bold tracking-tight">
+        <Link href="/" className="flex shrink-0 items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center bg-emerald-600 text-sm font-bold tracking-tight text-white">
             H
           </div>
-          <span className="text-base font-bold tracking-tight text-slate-900">
-            Hirelane
-          </span>
+          <span className="text-base font-bold tracking-tight text-slate-900">Hirelane</span>
         </Link>
 
-        {/* Nav links */}
-        <nav className="hidden md:flex items-center gap-0.5">
+        <nav className="hidden items-center gap-0.5 md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -88,12 +55,11 @@ export function Navbar() {
           ))}
         </nav>
 
-        {/* Auth actions */}
         {isAuthenticated && user ? (
           <div className="flex items-center gap-3">
             <NotificationPanel />
-            <div className="hidden sm:flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center bg-slate-900 text-white text-xs font-bold uppercase">
+            <div className="hidden items-center gap-2.5 sm:flex">
+              <div className="flex h-7 w-7 items-center justify-center bg-slate-900 text-xs font-bold uppercase text-white">
                 {user.name.charAt(0)}
               </div>
               <span className="text-sm font-medium text-slate-600">{user.name}</span>
@@ -102,22 +68,22 @@ export function Navbar() {
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="h-9 border border-slate-200 px-4 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-9 border border-slate-200 px-4 text-sm font-medium text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isLoggingOut ? "Signing out…" : "Sign out"}
+              {isLoggingOut ? "Signing out..." : "Sign out"}
             </button>
           </div>
         ) : (
           <div className="flex items-center gap-1.5">
             <Link
               href="/login"
-              className="h-9 px-4 flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+              className="flex h-9 items-center px-4 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
             >
               Login
             </Link>
             <Link
               href="/register"
-              className="h-9 bg-emerald-600 px-4 flex items-center text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
+              className="flex h-9 items-center bg-emerald-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
             >
               Get started
             </Link>

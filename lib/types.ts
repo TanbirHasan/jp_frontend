@@ -25,6 +25,11 @@ export type Company = {
   website?: string | null;
   description?: string | null;
   created_at?: string;
+  followed_at?: string;
+};
+
+export type CompanyFollowerCount = {
+  follower_count: number;
 };
 
 export type Job = {
@@ -62,7 +67,17 @@ export type Application = {
   job_type?: JobType;
 };
 
+export type JobAlert = {
+  id: string | number;
+  user_id?: string | number;
+  keywords?: string | null;
+  job_type?: JobType | null;
+  location?: string | null;
+  created_at?: string;
+};
+
 export type JobFilters = {
+  company_id?: string;
   type?: string;
   location?: string;
   salaryMin?: string;
@@ -116,4 +131,22 @@ export type CompanyPayload = {
   logo_url?: string;
   website?: string;
   description?: string;
+};
+
+export type AlertPayload = {
+  keywords?: string;
+  job_type?: JobType;
+  location?: string;
+};
+
+export type EmployerStats = {
+  total_jobs_posted: number;
+  open_jobs: number;
+  total_applications_received: number;
+  applications_this_week: number;
+  most_applied_job: {
+    id: string | number;
+    title: string;
+    count: number;
+  } | null;
 };

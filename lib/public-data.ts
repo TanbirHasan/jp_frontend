@@ -22,6 +22,7 @@ function toQueryString(filters?: JobFilters) {
   if (!filters) return "";
 
   if (filters.search) params.set("search", filters.search);
+  if (filters.company_id) params.set("company_id", filters.company_id);
   if (filters.type) params.set("job_type", filters.type);
   if (filters.location) params.set("location", filters.location);
   if (filters.salaryMin) params.set("salary_min", filters.salaryMin);

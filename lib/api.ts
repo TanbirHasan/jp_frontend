@@ -7,13 +7,17 @@ import axios, {
 } from "axios";
 import { useAuthStore } from "@/store/auth-store";
 import type {
+  AlertPayload,
   ApiEnvelope,
   Application,
   ApplicationStatus,
   AuthResponse,
   Company,
+  CompanyFollowerCount,
   CompanyPayload,
+  JobAlert,
   Job,
+  EmployerStats,
   JobPayload,
   LoginPayload,
   RefreshResponse,
@@ -53,6 +57,23 @@ function unwrapList<T>(data: T[] | Record<string, T[]>): T[] {
 
   const firstList = Object.values(data).find(Array.isArray);
   return firstList ?? [];
+}
+
+function unwrapAlertsList(
+  data:
+    | JobAlert[]
+    | { alerts: JobAlert[] }
+    | Record<string, JobAlert[]>,
+) {
+  if (Array.isArray(data)) return data;
+  if ("alerts" in data && Array.isArray(data.alerts)) return data.alerts;
+  return unwrapList<JobAlert>(data);
+}
+
+function getApplicationFromResponse(
+  data: Application | { application: Application },
+) {
+  return "application" in data ? data.application : data;
 }
 
 function getAccessTokenFromResponse(data: AuthResponse | RefreshResponse) {
@@ -252,7 +273,22 @@ export const jobsApi = {
       Application | { application: Application } | ApiEnvelope<Application | { application: Application }>
     >(`/jobs/${id}/apply`, payload ?? {});
     const application = unwrapApiData(data);
-    return "application" in application ? application.application : application;
+    return getApplicationFromResponse(application);
+  },
+
+  async applyWithResume(id: string, resume: File) {
+    const formData = new FormData();
+    formData.append("resume", resume);
+
+    const { data } = await api.post<
+      Application | { application: Application } | ApiEnvelope<Application | { application: Application }>
+    >(`/jobs/${id}/apply`, formData, {
+      headers: {
+        "Content-Type": undefined,
+      },
+    });
+    const application = unwrapApiData(data);
+    return getApplicationFromResponse(application);
   },
 };
 
@@ -269,7 +305,14 @@ export const applicationsApi = {
       Application | { application: Application } | ApiEnvelope<Application | { application: Application }>
     >(`/applications/${id}/status`, { status });
     const application = unwrapApiData(data);
-    return "application" in application ? application.application : application;
+    return getApplicationFromResponse(application);
+  },
+
+  async downloadResume(id: string) {
+    const { data } = await api.get<Blob>(`/applications/${id}/resume`, {
+      responseType: "blob",
+    });
+    return data;
   },
 };
 
@@ -297,6 +340,55 @@ export const companiesApi = {
     const company = unwrapApiData(data);
     return "company" in company ? company.company : company;
   },
+
+  async following() {
+    const { data } = await api.get<
+      Company[] | { companies: Company[] } | ApiEnvelope<Company[] | { companies: Company[] }>
+    >("/companies/following");
+    const companies = unwrapApiData(data);
+    if (Array.isArray(companies)) return companies;
+    return companies.companies ?? [];
+  },
+
+  async follow(id: string) {
+    await api.post(`/companies/${id}/follow`);
+  },
+
+  async unfollow(id: string) {
+    await api.delete(`/companies/${id}/follow`);
+  },
+
+  async followerCount(id: string) {
+    const { data } = await api.get<
+      CompanyFollowerCount | { follower_count: number } | ApiEnvelope<CompanyFollowerCount | { follower_count: number }>
+    >(`/companies/${id}/followers`);
+    const countData = unwrapApiData(data);
+    return "follower_count" in countData ? countData.follower_count : 0;
+  },
+};
+
+export const alertsApi = {
+  async list() {
+    const { data } = await api.get<
+      JobAlert[]
+      | { alerts: JobAlert[] }
+      | Record<string, JobAlert[]>
+      | ApiEnvelope<JobAlert[] | { alerts: JobAlert[] } | Record<string, JobAlert[]>>
+    >("/alerts");
+    return unwrapAlertsList(unwrapApiData(data));
+  },
+
+  async create(payload: AlertPayload) {
+    const { data } = await api.post<
+      JobAlert | { alert: JobAlert } | ApiEnvelope<JobAlert | { alert: JobAlert }>
+    >("/alerts", payload);
+    const alert = unwrapApiData(data);
+    return "alert" in alert ? alert.alert : alert;
+  },
+
+  async remove(id: string) {
+    await api.delete(`/alerts/${id}`);
+  },
 };
 
 export const adminApi = {
@@ -313,5 +405,12 @@ export const adminApi = {
 
   async removeJob(id: string) {
     await api.delete(`/jobs/${id}`);
+  },
+};
+
+export const employersApi = {
+  async stats() {
+    const { data } = await api.get<EmployerStats | ApiEnvelope<EmployerStats>>("/employers/stats");
+    return unwrapApiData(data);
   },
 };

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { CompanyFollowControls } from "@/components/company/company-follow-controls";
 import { JobCard } from "@/components/jobs/job-card";
 import { getCompanyById, getCompanyJobs } from "@/lib/public-data";
 
@@ -44,6 +45,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                   </svg>
                 </a>
               ) : null}
+              <CompanyFollowControls companyId={id} />
             </div>
           </div>
 
