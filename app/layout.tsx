@@ -20,9 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full">
-        <PageLoader />
+        <Suspense fallback={null}>
+          <PageLoader />
+        </Suspense>
         <Toaster position="top-right" richColors />
-        <Suspense>
+        <Suspense fallback={null}>
           <AuthProvider>
             <WebSocketProvider />
             <Navbar />
