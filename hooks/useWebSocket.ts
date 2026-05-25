@@ -2,10 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { getWebSocketUrl } from "@/lib/config";
 import { useAuthStore } from "@/store/auth-store";
 import { useNotificationStore } from "@/store/notification-store";
 
-const WS_URL = "ws://localhost:5000";
+const WS_URL = getWebSocketUrl();
 
 export function useWebSocket() {
   const accessToken = useAuthStore((state) => state.accessToken);

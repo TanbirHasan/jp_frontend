@@ -5,6 +5,7 @@ import axios, {
   type AxiosRequestConfig,
   type InternalAxiosRequestConfig,
 } from "axios";
+import { getApiBaseUrl } from "@/lib/config";
 import { useAuthStore } from "@/store/auth-store";
 import type {
   AlertPayload,
@@ -29,8 +30,7 @@ import type {
   User,
 } from "@/lib/types";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000/api/v1";
+const API_BASE_URL = getApiBaseUrl();
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
