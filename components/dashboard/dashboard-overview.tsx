@@ -20,6 +20,7 @@ import {
   Star,
   ArrowRight,
   BarChart3,
+  ClipboardList,
 } from "lucide-react";
 import { AlertsManager } from "@/components/alerts/alerts-manager";
 import { applicationsApi, employersApi, jobsApi } from "@/lib/api";
@@ -179,6 +180,7 @@ const quickActionsByRole: Record<
 > = {
   job_seeker: [
     { label: "Browse Jobs", href: "/jobs", primary: true, icon: Search },
+    { label: "Tracker", href: "/tracker", icon: ClipboardList },
     { label: "Following", href: "/following-companies", icon: Building2 },
     { label: "Applications", href: "/applications", icon: FileText },
     { label: "Edit Profile", href: "/profile", icon: User },
@@ -201,7 +203,9 @@ function QuickActions({ role }: { role: UserType["role"] }) {
       ? "grid-cols-2"
       : actions.length === 3
         ? "grid-cols-3"
-        : "grid-cols-2 sm:grid-cols-4";
+        : actions.length === 5
+          ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+          : "grid-cols-2 sm:grid-cols-4";
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

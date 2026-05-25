@@ -15,6 +15,7 @@ import {
   Users,
   Shield,
   ChevronRight,
+  ClipboardList,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -38,6 +39,7 @@ const roleColors: Record<UserType["role"], string> = {
 const navIconMap: Record<string, React.FC<{ className?: string }>> = {
   "/dashboard": LayoutDashboard,
   "/jobs": Briefcase,
+  "/tracker": ClipboardList,
   "/jobs/new": PlusCircle,
   "/alerts": Bell,
   "/following-companies": Building2,
@@ -132,28 +134,45 @@ export function AppShell({ user, title, description, children }: AppShellProps) 
 
         <div className="min-w-0 flex-1">
           {/* Page header */}
-          <div className="border-b border-slate-200 bg-white/80 backdrop-blur-sm">
-            <div className="px-5 py-6 sm:px-8 lg:px-10">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{title}</h1>
-                  {description ? (
-                    <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">
-                      {description}
-                    </p>
-                  ) : null}
+          {title || description ? (
+            <div className="border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+              <div className="px-5 py-6 sm:px-8 lg:px-10">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    {title ? (
+                      <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{title}</h1>
+                    ) : null}
+                    {description ? (
+                      <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">
+                        {description}
+                      </p>
+                    ) : null}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 md:hidden"
+                    aria-label="Open dashboard menu"
+                  >
+                    <Menu className="h-5 w-5" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 md:hidden"
-                  aria-label="Open dashboard menu"
-                >
-                  <Menu className="h-5 w-5" />
-                </button>
               </div>
             </div>
-          </div>
+          ) : null}
+
+          {!title && !description ? (
+            <div className="flex justify-end px-5 pt-5 sm:px-8 lg:px-10 md:hidden">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(true)}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
+                aria-label="Open dashboard menu"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            </div>
+          ) : null}
 
           <div className="px-5 py-8 pb-16 sm:px-8 lg:px-10">{children}</div>
         </div>

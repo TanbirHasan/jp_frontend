@@ -8,6 +8,7 @@ export const navByRole: Record<User["role"], NavItem[]> = {
   job_seeker: [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/jobs", label: "Jobs" },
+    { href: "/tracker", label: "Tracker" },
     { href: "/alerts", label: "Alerts" },
     { href: "/following-companies", label: "Following" },
     { href: "/applications", label: "Applications" },

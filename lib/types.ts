@@ -17,6 +17,18 @@ export type ApplicationStatus =
   | "accepted"
   | "rejected";
 
+export type TrackerStatus =
+  | "applied"
+  | "assessment"
+  | "interview"
+  | "offer"
+  | "rejected"
+  | "ghosted"
+  | "withdrawn";
+
+export type TrackerSortField = "applied_date" | "deadline" | "created_at";
+export type TrackerSortOrder = "asc" | "desc";
+
 export type Company = {
   id: string | number;
   employer_id: string | number;
@@ -74,6 +86,57 @@ export type JobAlert = {
   job_type?: JobType | null;
   location?: string | null;
   created_at?: string;
+};
+
+export type TrackerEntry = {
+  id: string | number;
+  user_id?: string | number;
+  job_title: string;
+  company_name: string;
+  job_url?: string | null;
+  platform?: string | null;
+  location?: string | null;
+  job_type?: string | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  currency?: string | null;
+  applied_date?: string | null;
+  deadline?: string | null;
+  application_status: TrackerStatus;
+  task_link?: string | null;
+  task_deadline?: string | null;
+  interview_date?: string | null;
+  interview_type?: string | null;
+  notes?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type TrackerEntryPayload = {
+  job_title: string;
+  company_name: string;
+  job_url?: string;
+  platform?: string;
+  location?: string;
+  job_type?: string;
+  salary_min?: number;
+  salary_max?: number;
+  currency?: string;
+  applied_date?: string;
+  deadline?: string;
+  application_status?: TrackerStatus;
+  task_link?: string;
+  task_deadline?: string;
+  interview_date?: string;
+  interview_type?: string;
+  notes?: string;
+};
+
+export type TrackerFilters = {
+  status?: TrackerStatus;
+  platform?: string;
+  sort?: TrackerSortField;
+  order?: TrackerSortOrder;
 };
 
 export type JobFilters = {

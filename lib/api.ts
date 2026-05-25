@@ -22,6 +22,10 @@ import type {
   LoginPayload,
   RefreshResponse,
   RegisterPayload,
+  TrackerEntry,
+  TrackerEntryPayload,
+  TrackerFilters,
+  TrackerStatus,
   User,
 } from "@/lib/types";
 
@@ -74,6 +78,12 @@ function getApplicationFromResponse(
   data: Application | { application: Application },
 ) {
   return "application" in data ? data.application : data;
+}
+
+function getTrackerEntryFromResponse(
+  data: TrackerEntry | { entry: TrackerEntry },
+) {
+  return "entry" in data ? data.entry : data;
 }
 
 function getAccessTokenFromResponse(data: AuthResponse | RefreshResponse) {
@@ -388,6 +398,53 @@ export const alertsApi = {
 
   async remove(id: string) {
     await api.delete(`/alerts/${id}`);
+  },
+};
+
+export const trackerApi = {
+  async list(filters?: TrackerFilters) {
+    const { data } = await api.get<
+      | TrackerEntry[]
+      | { entries: TrackerEntry[] }
+      | Record<string, TrackerEntry[]>
+      | ApiEnvelope<TrackerEntry[] | { entries: TrackerEntry[] } | Record<string, TrackerEntry[]>>
+    >("/tracker", { params: filters });
+    const entries = unwrapApiData(data);
+    if (Array.isArray(entries)) return entries;
+    if ("entries" in entries && Array.isArray(entries.entries)) return entries.entries;
+    return unwrapList<TrackerEntry>(entries);
+  },
+
+  async create(payload: TrackerEntryPayload) {
+    const { data } = await api.post<
+      TrackerEntry | { entry: TrackerEntry } | ApiEnvelope<TrackerEntry | { entry: TrackerEntry }>
+    >("/tracker", payload);
+    return getTrackerEntryFromResponse(unwrapApiData(data));
+  },
+
+  async get(id: string | number) {
+    const { data } = await api.get<
+      TrackerEntry | { entry: TrackerEntry } | ApiEnvelope<TrackerEntry | { entry: TrackerEntry }>
+    >(`/tracker/${id}`);
+    return getTrackerEntryFromResponse(unwrapApiData(data));
+  },
+
+  async update(id: string | number, payload: Partial<TrackerEntryPayload>) {
+    const { data } = await api.patch<
+      TrackerEntry | { entry: TrackerEntry } | ApiEnvelope<TrackerEntry | { entry: TrackerEntry }>
+    >(`/tracker/${id}`, payload);
+    return getTrackerEntryFromResponse(unwrapApiData(data));
+  },
+
+  async updateStatus(id: string | number, application_status: TrackerStatus) {
+    const { data } = await api.patch<
+      TrackerEntry | { entry: TrackerEntry } | ApiEnvelope<TrackerEntry | { entry: TrackerEntry }>
+    >(`/tracker/${id}/status`, { application_status });
+    return getTrackerEntryFromResponse(unwrapApiData(data));
+  },
+
+  async remove(id: string | number) {
+    await api.delete(`/tracker/${id}`);
   },
 };
 
