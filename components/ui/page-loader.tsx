@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 
 export function PageLoader() {
-  const pathname = usePathname();
   const [width, setWidth] = useState(0);
   const [visible, setVisible] = useState(false);
   const [opacity, setOpacity] = useState(1);
@@ -43,7 +41,7 @@ export function PageLoader() {
     }, 1800);
 
     return clearTimers;
-  }, [pathname]);
+  }, []);
 
   if (!visible) return null;
 
