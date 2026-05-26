@@ -23,9 +23,9 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { AlertsManager } from "@/components/alerts/alerts-manager";
-import { applicationsApi, employersApi, jobsApi } from "@/lib/api";
+import { adminApi, applicationsApi, employersApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import type { Application, EmployerStats, Job, User as UserType } from "@/lib/types";
+import type { AdminStats, Application, EmployerStats, User as UserType } from "@/lib/types";
 
 type DashboardOverviewProps = {
   user: UserType;
@@ -193,6 +193,7 @@ const quickActionsByRole: Record<
   admin: [
     { label: "Manage Users", href: "/admin/users", primary: true, icon: Users },
     { label: "Manage Jobs", href: "/admin/jobs", icon: Shield },
+    { label: "Applications", href: "/admin/applications", icon: FileText },
   ],
 };
 
@@ -369,7 +370,7 @@ function EmployerStatsSection({
 
 export function DashboardOverview({ user }: DashboardOverviewProps) {
   const [applications, setApplications] = useState<Application[]>([]);
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [employerStats, setEmployerStats] = useState<EmployerStats | null>(null);
   const [employerStatsLoading, setEmployerStatsLoading] = useState(true);
@@ -386,10 +387,10 @@ export function DashboardOverview({ user }: DashboardOverviewProps) {
     }
 
     if (user.role === "admin") {
-      jobsApi
-        .list()
-        .then(setJobs)
-        .catch(() => setJobs([]))
+      adminApi
+        .stats()
+        .then(setAdminStats)
+        .catch(() => setAdminStats(null))
         .finally(() => setLoading(false));
       return;
     }
@@ -470,27 +471,61 @@ export function DashboardOverview({ user }: DashboardOverviewProps) {
     );
   }
 
-  const open = jobs.filter((j) => j.status === "open").length;
-
+  // admin
+  const s = adminStats;
   return (
     <div className="space-y-6">
       <WelcomeBanner user={user} />
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Platform Jobs"
-          value={loading ? "—" : jobs.length}
-          icon={Briefcase}
+          label="Total Users"
+          value={loading ? "—" : (s?.total_users ?? 0)}
+          icon={Users}
           color="slate"
           loading={loading}
         />
         <StatCard
+          label="Job Seekers"
+          value={loading ? "—" : (s?.total_job_seekers ?? 0)}
+          icon={User}
+          color="blue"
+          loading={loading}
+        />
+        <StatCard
+          label="Employers"
+          value={loading ? "—" : (s?.total_employers ?? 0)}
+          icon={Building}
+          color="emerald"
+          loading={loading}
+        />
+        <StatCard
+          label="Companies"
+          value={loading ? "—" : (s?.total_companies ?? 0)}
+          icon={Building2}
+          color="amber"
+          loading={loading}
+        />
+        <StatCard
+          label="Total Jobs"
+          value={loading ? "—" : (s?.total_jobs ?? 0)}
+          icon={Briefcase}
+          color="violet"
+          loading={loading}
+        />
+        <StatCard
           label="Open Jobs"
-          value={loading ? "—" : open}
+          value={loading ? "—" : (s?.open_jobs ?? 0)}
           icon={CheckCircle2}
           color="emerald"
           loading={loading}
         />
-        <StatCard label="Access Level" value="Admin" icon={Shield} color="violet" />
+        <StatCard
+          label="Total Applications"
+          value={loading ? "—" : (s?.total_applications ?? 0)}
+          icon={FileText}
+          color="blue"
+          loading={loading}
+        />
       </div>
       <QuickActions role="admin" />
     </div>

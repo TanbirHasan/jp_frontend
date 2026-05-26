@@ -213,3 +213,13 @@ export type EmployerStats = {
     count: number;
   } | null;
 };
+
+export type AdminStats = {
+  total_users: number;
+  total_job_seekers: number;
+  total_employers: number;
+  total_companies: number;
+  total_jobs: number;
+  open_jobs: number;
+  total_applications: number;
+};

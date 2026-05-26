@@ -25,6 +25,7 @@ export const navByRole: Record<User["role"], NavItem[]> = {
     { href: "/dashboard", label: "Dashboard" },
     { href: "/admin/users", label: "Users" },
     { href: "/admin/jobs", label: "Jobs" },
+    { href: "/admin/applications", label: "Applications" },
     { href: "/profile", label: "Profile" },
   ],
 };

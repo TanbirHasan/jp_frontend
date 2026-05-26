@@ -8,6 +8,7 @@ import axios, {
 import { getApiBaseUrl } from "@/lib/config";
 import { useAuthStore } from "@/store/auth-store";
 import type {
+  AdminStats,
   AlertPayload,
   ApiEnvelope,
   Application,
@@ -28,6 +29,7 @@ import type {
   TrackerFilters,
   TrackerStatus,
   User,
+  UserRole,
 } from "@/lib/types";
 
 const API_BASE_URL = getApiBaseUrl();
@@ -449,19 +451,46 @@ export const trackerApi = {
 };
 
 export const adminApi = {
+  async stats() {
+    const { data } = await api.get<AdminStats | ApiEnvelope<AdminStats>>("/admin/stats");
+    return unwrapApiData(data) as AdminStats;
+  },
+
   async users() {
     const { data } = await api.get<User[] | Record<string, User[]> | ApiEnvelope<User[] | Record<string, User[]>>>(
-      "/users",
+      "/admin/users",
     );
     return unwrapList<User>(unwrapApiData(data));
   },
 
-  async deactivateUser(id: string) {
-    await api.delete(`/users/${id}`);
+  async updateUserRole(id: string, role: UserRole) {
+    await api.patch(`/admin/users/${id}/role`, { role });
   },
 
-  async removeJob(id: string) {
-    await api.delete(`/jobs/${id}`);
+  async deleteUser(id: string) {
+    await api.delete(`/admin/users/${id}`);
+  },
+
+  async jobs() {
+    const { data } = await api.get<Job[] | Record<string, Job[]> | ApiEnvelope<Job[] | Record<string, Job[]>>>(
+      "/admin/jobs",
+    );
+    return unwrapList<Job>(unwrapApiData(data));
+  },
+
+  async deleteJob(id: string) {
+    await api.delete(`/admin/jobs/${id}`);
+  },
+
+  async applications() {
+    const { data } = await api.get<
+      Application[] | Record<string, Application[]> | ApiEnvelope<Application[] | Record<string, Application[]>>
+    >("/admin/applications");
+    return unwrapList<Application>(unwrapApiData(data));
+  },
+
+  async deleteApplication(id: string) {
+    await api.delete(`/admin/applications/${id}`);
   },
 };
 

@@ -49,6 +49,7 @@ const navIconMap: Record<string, React.FC<{ className?: string }>> = {
   "/company": Building,
   "/admin/users": Users,
   "/admin/jobs": Shield,
+  "/admin/applications": FileText,
 };
 
 type AppShellProps = {
